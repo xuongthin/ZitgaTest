@@ -7,54 +7,62 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Button))]
 public class Stage : MonoBehaviour
 {
-    private int index;
+    private int id;
     private Button button;
     private Image mainImage;
     [SerializeField] private Image webImage;
     [SerializeField] private Text indexText;
     [SerializeField] private Image[] starImages;
+    [SerializeField] private Image tutorial;
 
-    [Header("Sprites")]
-    public Sprite unlockedSprite;
-    public Sprite lockSprite;
-
-    private void Start()
+    private void Awake()
     {
         button = GetComponent<Button>();
         mainImage = GetComponent<Image>();
     }
 
-    public void Init(int index, int numberOfStars)
+    public void Init(int id, int numberOfStars)
     {
-        this.index = index;
-        indexText.text = (index + 1).ToString();
-
-        if (index > LevelController.Instance.MaxUnlockedStages)
+        this.id = id;
+        tutorial.enabled = false;
+        switch (id)
         {
-            SetOnLock();
+            case 0:
+                indexText.text = "";
+                tutorial.enabled = true;
+                break;
+            case 999:
+                indexText.text = "...";
+                break;
+            default:
+                indexText.text = (id + 1).ToString();
+                break;
+        }
+
+        if (numberOfStars < 0)
+        {
+            OnLock();
         }
         else
         {
-            SetOnUnlock(numberOfStars);
+            OnUnlock(numberOfStars);
         }
-    }
-
-    public void Unlock()
-    {
-        SetOnUnlock(0);
     }
 
     public void OnClick()
     {
-        LevelController.Instance.ClickHandle(index);
+        StageManager.Ins.ClickHandle(id);
     }
 
-    private void SetOnLock()
+    public void Unlock(int star)
+    {
+        OnUnlock(star);
+    }
+
+    private void OnLock()
     {
         button.interactable = false;
-        mainImage.sprite = lockSprite;
         webImage.enabled = true;
-        indexText.enabled = false;
 
         foreach (Image star in starImages)
         {
@@ -62,12 +70,10 @@ public class Stage : MonoBehaviour
         }
     }
 
-    private void SetOnUnlock(int numberOfStars)
+    private void OnUnlock(int numberOfStars)
     {
         button.interactable = true;
-        mainImage.sprite = unlockedSprite;
         webImage.enabled = false;
-        indexText.enabled = true;
 
         for (var i = 0; i < 3; i++)
         {

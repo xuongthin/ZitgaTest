@@ -5,28 +5,13 @@ using UnityEngine.UI;
 
 public class StagesGroup : MonoBehaviour
 {
-    private int seq;
+    private int id;
     [SerializeField] private List<Stage> stages;
     [SerializeField] private Image[] lines;
 
-    public void Init(int seq)
-    {
-        lines[0].enabled = (seq % 2 == 1) && seq * 4 < LevelController.Instance.MaxStages;
-        lines[1].enabled = seq % 2 == 0 && seq * 4 < LevelController.Instance.MaxStages;
-
-        int tmp;
-        for (var i = 0; i < 4; i++)
-        {
-            tmp = seq * 4 + i;
-            // stages[i].Init(tmp, LevelController.Instance.ScoreData[tmp]);
-        }
-
-        this.seq = seq;
-    }
-
     public void Init(StagesGroup adjacentStagesGroup, bool initAbove)
     {
-        int newSeq = adjacentStagesGroup.seq + (initAbove ? 1 : -1);
+        int newSeq = adjacentStagesGroup.id + (initAbove ? 1 : -1);
         Init(newSeq);
 
         transform.localPosition = adjacentStagesGroup.transform.localPosition + Vector3.up * 250 * (initAbove ? 1 : -1);
@@ -40,14 +25,53 @@ public class StagesGroup : MonoBehaviour
         }
     }
 
+    public void Init(int id)
+    {
+        lines[0].enabled = (id % 2 == 1) && id * 4 < StageManager.Ins.maxStages;
+        lines[1].enabled = id % 2 == 0 && id * 4 < StageManager.Ins.maxStages;
+
+        int tmpId;
+
+        if (id % 2 == 0)
+        {
+            for (var i = 0; i < 4; i++)
+            {
+                tmpId = id * 4 + i;
+                stages[i].Init(tmpId, StageManager.Ins.GetLevelStar(tmpId));
+            }
+        }
+        else
+        {
+            for (var i = 0; i < 4; i++)
+            {
+                tmpId = (id + 1) * 4 - i - 1;
+                stages[i].Init(tmpId, StageManager.Ins.GetLevelStar(tmpId));
+            }
+        }
+
+        this.id = id;
+    }
+
     public bool isFirst()
     {
-        return seq == 0;
+        return id <= 0;
     }
 
     public bool isLast()
     {
-        bool isLastStageGroup = (seq + 1) * 4 >= LevelController.Instance.MaxStages;
+        bool isLastStageGroup = (id + 1) * 4 >= StageManager.Ins.maxStages;
         return isLastStageGroup;
+    }
+
+    public Stage FindStage(int id)
+    {
+        if (id < this.id * 4 || id > this.id * 4 + 3)
+        {
+            return null;
+        }
+        else
+        {
+            return stages[id - this.id * 4];
+        }
     }
 }
