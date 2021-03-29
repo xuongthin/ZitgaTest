@@ -69,7 +69,7 @@ public class StageUIManager : MonoBehaviour, IBeginDragHandler, IDragHandler
                 if (offer >= 0)
                 {
                     scroll.StopMovement();
-                    scroll.velocity = Vector2.up * (-offer * 1000);
+                    scroll.velocity = Vector2.up * (-offer * 10);
                 }
                 return;
             }
@@ -89,7 +89,7 @@ public class StageUIManager : MonoBehaviour, IBeginDragHandler, IDragHandler
                 if (offer <= 0)
                 {
                     scroll.StopMovement();
-                    scroll.velocity = Vector2.up * (-offer * 1000);
+                    scroll.velocity = Vector2.up * (-offer * 10);
                 }
                 return;
             }

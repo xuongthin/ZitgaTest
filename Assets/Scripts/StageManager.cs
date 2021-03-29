@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class StageManager : MonoBehaviour
@@ -40,12 +42,19 @@ public class StageManager : MonoBehaviour
             mazeData.data[id + 1].star = 0;
             UI.UpdateStage(id + 1);
         }
+        SaveSystem.Ins.Save();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            OpenMenu();
+        }
     }
 
     public void OpenMenu()
     {
-        // gameObject.SetActive(true);
-        // Menu.Ins.OpenMenu();
         SceneManager.LoadScene(0);
     }
 }

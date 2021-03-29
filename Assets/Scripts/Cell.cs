@@ -1,13 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Cell : MonoBehaviour
+public class Cell : MonoBehaviour, IPointerEnterHandler
 {
     public static List<List<Cell>> cells;
     private int x;
     private int y;
     private bool visited;
+    public static Cell previousCell;
 
     public static void ResetAll()
     {
@@ -27,6 +29,10 @@ public class Cell : MonoBehaviour
         if (cells == null)
         {
             cells = new List<List<Cell>>();
+        }
+
+        if (cells.Count == 0)
+        {
             cells.Add(new List<Cell>());
         }
 
@@ -39,47 +45,28 @@ public class Cell : MonoBehaviour
         x = cells[y].Count;
 
         cells[y].Add(this);
-
     }
 
-    public void BreakWall()
-    {
-        visited = true;
-
-        int[] direction = { 0, 1, 2, 3 };
-        direction.Shuffle();
-
-        Cell tmp;
-        for (int i = 0; i < 4; i++)
-        {
-            tmp = GetNeighbor(direction[i]);
-            if (tmp != null && !tmp.visited)
-            {
-                tmp.BreakWall();
-                GetWall(direction[i]).Set(true);
-            }
-        }
-    }
-
-    public List<Cell> FindPath()
+    public List<Cell> FindPath(Cell bug)
     {
         List<Cell> result = new List<Cell>();
         Stack<Cell> path = new Stack<Cell>();
 
-        if (GotoNeighbor(path))
+        if (GotoNeighbor(path, bug))
         {
             while (path.Count > 0)
             {
                 result.Add(path.Pop());
             }
         }
-
+        previousCell = this;
         return result;
     }
 
-    public bool GotoNeighbor(Stack<Cell> path)
+    public bool GotoNeighbor(Stack<Cell> path, Cell bug)
     {
-        if (x == 0 && y == Maze.Ins.height - 1)
+        // if (x == 0 && y == Maze.Ins.height - 1)
+        if (bug == this)
         {
             path.Push(this);
             return true;
@@ -92,7 +79,7 @@ public class Cell : MonoBehaviour
         {
             if (GetWall(i).GetStatus() && !GetNeighbor(i).visited)
             {
-                if (GetNeighbor(i).GotoNeighbor(path))
+                if (GetNeighbor(i).GotoNeighbor(path, bug))
                 {
                     return true;
                 }
@@ -147,9 +134,56 @@ public class Cell : MonoBehaviour
         }
     }
 
-    public void ShowPosition()
+    public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log(new Vector2(x, y));
+        if (previousCell.IsConnectable(this))
+        {
+            previousCell = this;
+            Game.Ins.AddCell(this);
+            Debug.Log(new Vector2(x, y));
+        }
     }
+
+    private bool IsConnectable(Cell cell)
+    {
+        if ((cell.x == previousCell.x) && (cell.y == previousCell.y + 1))
+        {
+            return GetWall(0).isOpen;
+        }
+        if ((cell.x == previousCell.x + 1) && (cell.y == previousCell.y))
+        {
+            return GetWall(1).isOpen;
+        }
+        if ((cell.x == previousCell.x - 1) && (cell.y == previousCell.y))
+        {
+            return GetWall(2).isOpen;
+        }
+        if ((cell.x == previousCell.x) && (cell.y == previousCell.y - 1))
+        {
+            return GetWall(3).isOpen;
+        }
+        return false;
+    }
+
+#if UNITY_EDITOR
+    public void BreakWall()
+    {
+        visited = true;
+
+        int[] direction = { 0, 1, 2, 3 };
+        direction.Shuffle();
+
+        Cell tmp;
+        for (int i = 0; i < 4; i++)
+        {
+            tmp = GetNeighbor(direction[i]);
+            if (tmp != null && !tmp.visited)
+            {
+                tmp.BreakWall();
+                GetWall(direction[i]).Set(true);
+            }
+        }
+    }
+#endif
 
 }

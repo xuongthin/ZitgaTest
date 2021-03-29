@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class MazeGenerator : MonoBehaviour
 {
+#if UNITY_EDITOR
     public MazeData mazeData;
 
     public void GenerateAllLevel()
@@ -33,5 +34,5 @@ public class MazeGenerator : MonoBehaviour
         LevelData levelData = new LevelData { id = levelSeq, star = -1, seed = Maze.Ins.GetData() };
         mazeData.data.Add(levelData);
     }
-
+#endif
 }

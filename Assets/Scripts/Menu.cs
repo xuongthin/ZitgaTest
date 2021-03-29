@@ -5,20 +5,25 @@ using UnityEngine.SceneManagement;
 
 public class Menu : MonoBehaviour
 {
-    public static Menu Ins;
     [SerializeField] private MazeData mazeData;
+
+    private void Awake()
+    {
+        SaveSystem.Ins.Load();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+    }
 
     public void Play()
     {
-        // gameObject.SetActive(false);
-        // StageManager.Ins.OpenStageMenu();
         SceneManager.LoadScene(1);
     }
-
-    // public void OpenMenu()
-    // {
-    //     gameObject.SetActive(true);
-    // }
 
     public void RandomGameData()
     {
@@ -28,6 +33,7 @@ public class Menu : MonoBehaviour
             mazeData.data[i].star = Random.Range(1, 4);
         }
         mazeData.data[randomMax].star = 0;
+        SaveSystem.Ins.Save();
     }
 
     public void ResetGameData()
@@ -37,5 +43,6 @@ public class Menu : MonoBehaviour
         {
             mazeData.data[i].star = -1;
         }
+        SaveSystem.Ins.Save();
     }
 }

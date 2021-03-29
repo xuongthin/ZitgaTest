@@ -69,9 +69,13 @@ public class StagesGroup : MonoBehaviour
         {
             return null;
         }
-        else
+        else if (this.id % 2 == 0)
         {
             return stages[id - this.id * 4];
+        }
+        else
+        {
+            return stages[3 - (id - this.id * 4)];
         }
     }
 }
